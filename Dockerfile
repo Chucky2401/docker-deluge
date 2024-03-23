@@ -1,8 +1,11 @@
-FROM alpine:latest
+FROM alpine:3.19
 
-LABEL Author="Chucky2401"
-LABEL Description="OpenVPN/Deluged container"
-LABEL Version="0.0.12"
+LABEL fr.blackwizard.author="Chucky2401" \
+    fr.blackwizard.description="OpenVPN/Deluged container" \
+    fr.blackwizard.version="0.1.0" \
+    fr.blackwizard.source="https://github.com/Chucky2401/docker-deluge" \
+    fr.blackwizard.support="https://github.com/Chucky2401/docker-deluge/issues" \
+    fr.blackwizard.url="https://blackwizard.fr"
 
 RUN \
     echo "*** Create directories ***" ; \
