@@ -27,6 +27,8 @@ RUN \
 # COPY --chmod=644 src/alias.sh /etc/profile.d/alias.sh
 COPY --chmod=755 src/docker-entrypoint.py /entrypoint/
 COPY --chmod=755 src/deluge/core.conf /entrypoint/
+ENV PUID=1000
+ENV PGID=1000
 
 RUN \
     # echo "*** Enable Shell color ***" ; \
