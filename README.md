@@ -7,7 +7,7 @@ Find me at:
 
 Deluge is a lightweight, Free Software, cross-platform BitTorrent client.
 
-[![Deluge](https://deluge-torrent.org/images/deluge_logo.png)](https://deluge-torrent.org)
+<a href="https://deluge-torrent.org"><img src="https://www.omgubuntu.co.uk/wp-content/uploads/2019/06/the-new-deluge-icon-300x300.png" alt="placeholder" width="48"></a>
 
 ## Supported Architectures
 
