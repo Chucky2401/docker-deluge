@@ -1,0 +1,88 @@
+services:
+  deluge:
+    container_name: deluge
+    tty: true
+    build:
+      context: .
+      dockerfile: Dockerfile
+    pull_policy: build
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - /dev/net/tun
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Paris
+      - LOCAL_NETWORK=192.168.1.0/24
+      - DELUGE_LOGLEVEL=warning
+      # - DELUGE_USERNAME=user
+      # Set the password directly with env var
+      # - DELUGE_PASSWORD=password
+      # Or with a secret
+      # - DELUGE_PASSWORD=/run/secrets/DELUGE_PASSWORD
+      # Set the level of the user.
+      # Valid value are:
+      #   -  0: None
+      #   -  1: Read only
+      #   -  5: Normal
+      #   - 10: Administrator
+      # - DELUGE_LEVEL=10
+      # Using file from volume.
+      # You must write the container internal path
+      - VPN_FILE=/.openvpn/Sweden.ovpn
+      # Using file from secret
+      # - VPN_FILE=/run/secrets/VPN_FILE
+      # - VPN_USER=<username>
+      # - VPN_PASSWORD=<password>
+    volumes:
+      # If you comment this line below because of using secret for VPN_FILE
+      # be warn that the log file will be lost after each compose destroy
+      - ./openvpn/:/.openvpn
+      - ./config/:/deluge-conf
+      # - /mnt/crucial:/downloads
+    ports:
+      # Web UI
+      - 8112:8112
+      # Deluge default P2P ports
+      - 6881:6881
+      - 6881:6881/udp
+      # Daemon port
+      - 58846:58846
+    networks:
+      - deluge
+    dns:
+      - 8.8.8.8
+      - 8.4.4.8
+    dns_search: '.'
+    restart: unless-stopped
+    secrets:
+      - VPN_CREDENTIALS
+      # Using VPN_FILE with secret
+      # - VPN_FILE
+      # Set DELUGE_PASSWORD with secret
+      # - DELUGE_PASSWORD
+    labels:
+      - wud.watch=false
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+
+networks:
+  deluge:
+    driver: bridge
+    enable_ipv6: false
+
+secrets:
+  # The VPN_CREDENTIALS must have
+  # username on first line and
+  # password on second line
+  VPN_CREDENTIALS:
+    file: vpn_credentials
+  # VPN_FILE as secret
+  # VPN_FILE:
+  #   file: vpn.ovpn
+  # DELUGE_PASSWORD as secret
+  # DELUGE_PASSWORD:
+  #   file: deluge_password
