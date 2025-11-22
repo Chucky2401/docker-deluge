@@ -43,4 +43,4 @@ EXPOSE 8112 6881 6881/udp 58846 10000
 VOLUME /deluge-conf /downloads /.openvpn
 
 WORKDIR /entrypoint
-CMD ["python3", "docker-entrypoint.py"]
+ENTRYPOINT ["sh", "start.sh"]
