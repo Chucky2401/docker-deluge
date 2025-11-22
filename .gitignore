@@ -1,5 +1,8 @@
-notes/
-scripts/
-wsl/
 logs/
-Docker/
+
+# Volume mount
+config/
+openvpn/
+
+# Confidential
+*credentials
