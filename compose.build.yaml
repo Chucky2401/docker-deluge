@@ -5,6 +5,14 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        CREATED: |-
+          $CREATED
+        DIGEST: |-
+          $DIGEST
+        REVISION: |-
+          $REVISION
+        VERSION: "1.0.0"
     pull_policy: build
     cap_add:
       - NET_ADMIN
