@@ -1,8 +1,20 @@
 FROM alpine:latest
 
-LABEL Author="Chucky2401"
-LABEL Description="OpenVPN/Deluged container"
-LABEL Version="0.0.13"
+ARG CREATED
+ARG DIGEST
+ARG REVISION
+ARG VERSION
+
+LABEL org.opencontainers.image.authors="Chucky2401"
+LABEL org.opencontainers.image.base.digest=$DIGEST
+LABEL org.opencontainers.image.base.name="alpine:latest"
+LABEL org.opencontainers.image.created=$CREATED
+LABEL org.opencontainers.image.description="OpenVPN and Deluge"
+LABEL org.opencontainers.image.documentation="https://github.com/Chucky2401/docker-deluge"
+LABEL org.opencontainers.image.url="https://github.com/Chucky2401/docker-deluge"
+LABEL org.opencontainers.image.revision=$REVISION
+LABEL org.opencontainers.image.source="https://github.com/Chucky2401/docker-deluge"
+LABEL org.opencontainers.image.version=$VERSION
 
 RUN \
     echo "*** Create directories ***" ; \
