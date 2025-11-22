@@ -17,10 +17,6 @@ LABEL org.opencontainers.image.source="https://github.com/Chucky2401/docker-delu
 LABEL org.opencontainers.image.version=$VERSION
 
 
-# ADD src/* /root/
-# COPY --chmod=644 src/alias.sh /etc/profile.d/alias.sh
-COPY --chmod=755 src/docker-entrypoint.py /entrypoint/
-COPY --chmod=755 src/deluge/core.conf /entrypoint/
 ENV PUID=1000
 ENV PGID=1000
 
@@ -53,6 +49,8 @@ RUN \
     chown -R deluge:deluge /deluge-conf /downloads /.openvpn /entrypoint /template
 
 EXPOSE 8112 6881 6881/udp 58846 10000
+COPY --chmod=755 src/ /
+
 VOLUME /deluge-conf /downloads /.openvpn
 
 WORKDIR /entrypoint
