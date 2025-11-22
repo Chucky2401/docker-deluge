@@ -48,9 +48,9 @@ RUN \
     mkdir /template ; \
     chown -R deluge:deluge /deluge-conf /downloads /.openvpn /entrypoint /template
 
-EXPOSE 8112 6881 6881/udp 58846 10000
 COPY --chmod=755 src/ /
 
+EXPOSE 8112 6881 6881/udp 58846
 VOLUME /deluge-conf /downloads /.openvpn
 
 WORKDIR /entrypoint
