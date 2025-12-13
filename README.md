@@ -227,3 +227,25 @@ Example output:
 ```text
 uid=1000(your_user) gid=1000(your_user) groups=1000(your_user)
 ```
+
+## Roadmap
+
+For the moment I have only one think to do: use two containers.
+
+1. VPN
+2. Deluge
+
+The Deluge container will use the VPN container to access internet.
+
+This because Docker is design to do one thing per container, and not two like
+this image.
+
+## F.A.Q
+
+### Why add an environment variable to set daemon port?
+
+I know, with Docker is very easy to set another port on the host side.
+
+But, before creating this complete image, I was using a different port for
+security purpose, in case if the container is breached. I think so someone else
+wants to do the same as me, so I keep this feature.
