@@ -16,8 +16,8 @@ for your arch.
 
 Actually, only the following arch are available:
 
-- linux/amd64
-- linux/arm64
+* linux/amd64
+* linux/arm64
 
 ## Usage
 
@@ -31,6 +31,7 @@ With the below configuration, you must have prepare the following:
 * `openvpn` directory with the `vpn.ovpn` file
 * `vpn_credentials` file to authenticate to the VPN. You must respect this
 format:
+
   ```
   username
   password
