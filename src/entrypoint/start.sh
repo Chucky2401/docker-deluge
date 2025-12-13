@@ -97,7 +97,7 @@ done
 
 # Update timezone
 if [[ -n "$TZ" ]]; then
-  ln -s /usr/share/zoneinfo/${TZ} /etc/localtime
+  ln -fs /usr/share/zoneinfo/${TZ} /etc/localtime
 fi
 
 # Define VPN credentials files
