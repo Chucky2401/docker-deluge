@@ -197,7 +197,7 @@ def main():
     waiting  = 5
     retries  = 0
 
-    daemonPort = os.environ['DELUGE_DAEMON_PORT']
+    daemonPort = os.getenv('DELUGE_DAEMON_PORT', 58846)
 
     delugeLogLevel = validate_deluge_loglevel(os.environ['DELUGE_LOGLEVEL'])
 
