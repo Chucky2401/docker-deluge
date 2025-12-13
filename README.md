@@ -106,7 +106,7 @@ must be write exactly as above
 | `VPN_FILE=/.openvpn/vpn.ovpn` | `N/A` | **Mandatory** | Internal container path to the OpenVPN .ovpn file. You can use a Docker secret |
 | `DELUGE_DAEMON_USERNAME=` | `deluge` | **Optional** | Username to access the Deluge daemon |
 | `DELUGE_DAEMON_PASSWORD=` | *random* | **Optional** - *Use `docker logs` to find it or open `./config/auth`*. You can also use a Docker secret | Password of the associated username to access the Deluge daemon |
-| `DELUGE_LEVEL=` | `10` | **Optional** | Level access of the associated username. (Valid values: 0 (None); 1 (Read only); 5 (Normal); 10 (Administrator)) |
+| `DELUGE_DAEMON_USER_LEVEL=` | `10` | **Optional** | Level access of the associated username. (Valid values: 0 (None); 1 (Read only); 5 (Normal); 10 (Administrator)) |
 | `VPN_USER=` | `N/A` | **Not recommended** | Set the VPN username |
 | `VPN_PASSWORD=` | `N/A` | **Not recommended** | Set the VPN password |
 
@@ -163,7 +163,7 @@ services:
       - DELUGE_LOGLEVEL=warning
       - DELUGE_DAEMON_USERNAME=user
       - DELUGE_DAEMON_PASSWORD=/run/secrets/DELUGE_DAEMON_PASSWORD
-      - DELUGE_LEVEL=10
+      - DELUGE_DAEMON_USER_LEVEL=10
       - VPN_FILE=/run/secrets/VPN_FILE
     volumes:
       - ./config/:/deluge-conf

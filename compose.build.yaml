@@ -35,7 +35,7 @@ services:
       #   -  1: Read only
       #   -  5: Normal
       #   - 10: Administrator
-      # - DELUGE_LEVEL=10
+      # - DELUGE_DAEMON_USER_LEVEL=10
       # Using file from volume.
       # You must write the container internal path
       - VPN_FILE=/.openvpn/Sweden.ovpn
