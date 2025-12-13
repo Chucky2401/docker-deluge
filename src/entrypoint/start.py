@@ -95,6 +95,20 @@ def set_outgoing_interface(ip):
 
 # -------------------------------------------------------------------------------------------------------------------- #
 
+def set_daemon_port(port):
+    pattern = re.compile(r'"daemon_port"\s*:\s*(\d+)?')
+    new_pattern = f'"daemon_port": {port}'
+
+    with open("/deluge-conf/core.conf", "r") as f:
+        text = f.read()
+
+    new_text = pattern.sub(new_pattern, text)
+
+    with open("/deluge-conf/core.conf", "w") as f:
+        f.write(new_text)
+
+# -------------------------------------------------------------------------------------------------------------------- #
+
 def get_default_interface():
     interface = 'eth0'
     output = subprocess.check_output(["ip", "route", "show", "default"]).decode()
@@ -183,6 +197,8 @@ def main():
     waiting  = 5
     retries  = 0
 
+    daemonPort = os.environ['DELUGE_DAEMON_PORT']
+
     delugeLogLevel = validate_deluge_loglevel(os.environ['DELUGE_LOGLEVEL'])
 
     gateway     = get_default_gateway()
@@ -228,6 +244,15 @@ def main():
         print(f"Cannot set ip address interface: {e}")
         quit(1)
     print("✅ Incoming interface has been set in Deluge 'core.conf'!\n")
+
+    if daemonPort != 58846:
+        try:
+            print(f"ℹ️ Setting daemon port to {daemonPort}...")
+            set_daemon_port(daemonPort)
+            print("✅ Port has been set\n")
+        catch Exception as e:
+            print(f"❌ Daemon has not been set, keep default port 58846.")
+            print(f"Error: {e}\n")
 
     print("ℹ️ Starting Deluge Server...")
     deluged   = start_deluged(delugeLogLevel)
