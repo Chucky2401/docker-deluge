@@ -26,9 +26,9 @@ services:
       - DELUGE_LOGLEVEL=warning
       # - DELUGE_DAEMON_USERNAME=user
       # Set the password directly with env var
-      # - DELUGE_PASSWORD=password
+      # - DELUGE_DAEMON_PASSWORD=password
       # Or with a secret
-      # - DELUGE_PASSWORD=/run/secrets/DELUGE_PASSWORD
+      # - DELUGE_DAEMON_PASSWORD=/run/secrets/DELUGE_DAEMON_PASSWORD
       # Set the level of the user.
       # Valid value are:
       #   -  0: None
@@ -68,8 +68,8 @@ services:
       - VPN_CREDENTIALS
       # Using VPN_FILE with secret
       # - VPN_FILE
-      # Set DELUGE_PASSWORD with secret
-      # - DELUGE_PASSWORD
+      # Set DELUGE_DAEMON_PASSWORD with secret
+      # - DELUGE_DAEMON_PASSWORD
     labels:
       - wud.watch=false
     deploy:
@@ -91,6 +91,6 @@ secrets:
   # VPN_FILE as secret
   # VPN_FILE:
   #   file: vpn.ovpn
-  # DELUGE_PASSWORD as secret
-  # DELUGE_PASSWORD:
-  #   file: deluge_password
+  # DELUGE_DAEMON_PASSWORD as secret
+  # DELUGE_DAEMON_PASSWORD:
+  #   file: deluge_daemon_password

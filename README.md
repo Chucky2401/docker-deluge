@@ -105,7 +105,7 @@ must be write exactly as above
 | `DELUGE_LOGLEVEL=warning` | `error` | **Optional** | Set the Deluge log level. (Valid values: none; info; warning; error; debug) |
 | `VPN_FILE=/.openvpn/vpn.ovpn` | `N/A` | **Mandatory** | Internal container path to the OpenVPN .ovpn file. You can use a Docker secret |
 | `DELUGE_DAEMON_USERNAME=` | `deluge` | **Optional** | Username to access the Deluge daemon |
-| `DELUGE_PASSWORD=` | *random* | **Optional** - *Use `docker logs` to find it or open `./config/auth`*. You can also use a Docker secret | Password of the associated username to access the Deluge daemon |
+| `DELUGE_DAEMON_PASSWORD=` | *random* | **Optional** - *Use `docker logs` to find it or open `./config/auth`*. You can also use a Docker secret | Password of the associated username to access the Deluge daemon |
 | `DELUGE_LEVEL=` | `10` | **Optional** | Level access of the associated username. (Valid values: 0 (None); 1 (Read only); 5 (Normal); 10 (Administrator)) |
 | `VPN_USER=` | `N/A` | **Not recommended** | Set the VPN username |
 | `VPN_PASSWORD=` | `N/A` | **Not recommended** | Set the VPN password |
@@ -117,14 +117,14 @@ You can use a Docker secret to set Deluge daemon access password like `VPN_CREDE
 ```yaml
   [...]
     environment:
-      - DELUGE_PASSWORD=/run/secrets/DELUGE_PASSWORD
+      - DELUGE_DAEMON_PASSWORD=/run/secrets/DELUGE_DAEMON_PASSWORD
     secrets:
-      - DELUGE_PASSWORD
+      - DELUGE_DAEMON_PASSWORD
   [...]
 
 secrets:
-  DELUGE_PASSWORD:
-    file: deluge_password
+  DELUGE_DAEMON_PASSWORD:
+    file: deluge_daemon_password
 ```
 
 ### OpenVPN file with secret
@@ -162,7 +162,7 @@ services:
       - LOCAL_NETWORK=192.168.1.0/24
       - DELUGE_LOGLEVEL=warning
       - DELUGE_DAEMON_USERNAME=user
-      - DELUGE_PASSWORD=/run/secrets/DELUGE_PASSWORD
+      - DELUGE_DAEMON_PASSWORD=/run/secrets/DELUGE_DAEMON_PASSWORD
       - DELUGE_LEVEL=10
       - VPN_FILE=/run/secrets/VPN_FILE
     volumes:
@@ -183,7 +183,7 @@ services:
     secrets:
       - VPN_CREDENTIALS
       - VPN_FILE
-      - DELUGE_PASSWORD
+      - DELUGE_DAEMON_PASSWORD
     labels:
       - wud.watch=false
     deploy:
@@ -201,8 +201,8 @@ secrets:
     file: vpn_credentials
   VPN_FILE:
     file: vpn.ovpn
-  DELUGE_PASSWORD:
-    file: deluge_password
+  DELUGE_DAEMON_PASSWORD:
+    file: deluge_daemon_password
 ```
 
 ## User / Group Identifiers
