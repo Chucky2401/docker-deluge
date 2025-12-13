@@ -103,7 +103,7 @@ must be write exactly as above
 | `LOCAL_NETWORK=192.168.1.0/24` | `Empty` | **Mandatory** | Define your local network ip range with CIDR to be able to access the container |
 | `DELUGE_LOGLEVEL=warning` | `error` | **Optional** | Set the Deluge log level. (Valid values: none; info; warning; error; debug) |
 | `VPN_FILE=/.openvpn/vpn.ovpn` | `N/A` | **Mandatory** | Internal container path to the OpenVPN .ovpn file. You can use a Docker secret |
-| `DELUGE_USERNAME=` | `deluge` | **Optional** | Username to access the Deluge daemon |
+| `DELUGE_DAEMON_USERNAME=` | `deluge` | **Optional** | Username to access the Deluge daemon |
 | `DELUGE_PASSWORD=` | *random* | **Optional** - *Use `docker logs` to find it or open `./config/auth`*. You can also use a Docker secret | Password of the associated username to access the Deluge daemon |
 | `DELUGE_LEVEL=` | `10` | **Optional** | Level access of the associated username. (Valid values: 0 (None); 1 (Read only); 5 (Normal); 10 (Administrator)) |
 | `VPN_USER=` | `N/A` | **Not recommended** | Set the VPN username |
@@ -160,7 +160,7 @@ services:
       - TZ=Europe/Paris
       - LOCAL_NETWORK=192.168.1.0/24
       - DELUGE_LOGLEVEL=warning
-      - DELUGE_USERNAME=user
+      - DELUGE_DAEMON_USERNAME=user
       - DELUGE_PASSWORD=/run/secrets/DELUGE_PASSWORD
       - DELUGE_LEVEL=10
       - VPN_FILE=/run/secrets/VPN_FILE

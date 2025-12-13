@@ -51,8 +51,8 @@ RANDOM_PASSWORD=$(
   echo
 )
 
-if [[ -z "$DELUGE_USERNAME" ]]; then
-  echo "DELUGE_USERNAME is not set. Fallback to: deluge"
+if [[ -z "$DELUGE_DAEMON_USERNAME" ]]; then
+  echo "DELUGE_DAEMON_USERNAME is not set. Fallback to: deluge"
 fi
 
 if [[ -z "$DELUGE_PASSWORD" ]]; then
@@ -63,7 +63,7 @@ if [[ -z "$DELUGE_LEVEL" ]]; then
   echo "DELUGE_LEVEL is not set. Defaul to administrator (10)"
 fi
 
-DELUGE_USERNAME=${DELUGE_USERNAME:-deluge}
+DELUGE_DAEMON_USERNAME=${DELUGE_DAEMON_USERNAME:-deluge}
 DELUGE_PASSWORD=${DELUGE_PASSWORD:-$RANDOM_PASSWORD}
 DELUGE_LEVEL=${DELUGE_LEVEL:-10}
 
@@ -71,7 +71,7 @@ if [[ -e "$DELUGE_PASSWORD" ]]; then
   DELUGE_PASSWORD=$(cat "$DELUGE_PASSWORD")
 fi
 
-DELUGE_CREDENTIALS="${DELUGE_USERNAME}:${DELUGE_PASSWORD}:${DELUGE_LEVEL}"
+DELUGE_CREDENTIALS="${DELUGE_DAEMON_USERNAME}:${DELUGE_PASSWORD}:${DELUGE_LEVEL}"
 
 if ! grep -q "$DELUGE_CREDENTIALS" /deluge-conf/auth; then
   echo "$DELUGE_CREDENTIALS" >/deluge-conf/auth

@@ -24,7 +24,7 @@ services:
       - TZ=Europe/Paris
       - LOCAL_NETWORK=192.168.1.0/24
       - DELUGE_LOGLEVEL=warning
-      # - DELUGE_USERNAME=user
+      # - DELUGE_DAEMON_USERNAME=user
       # Set the password directly with env var
       # - DELUGE_PASSWORD=password
       # Or with a secret
