@@ -225,7 +225,7 @@ def main():
         set_listen_interface(ip)
         set_outgoing_interface(ip)
     except Exception as e:
-        print(f"Cannot copy default 'core.conf': {e}")
+        print(f"Cannot set ip address interface: {e}")
         quit(1)
     print("✅ Incoming interface has been set in Deluge 'core.conf'!\n")
 
