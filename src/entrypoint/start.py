@@ -95,6 +95,21 @@ def set_outgoing_interface(ip):
 
 # -------------------------------------------------------------------------------------------------------------------- #
 
+def get_daemon_port():
+    pattern = re.compile(r'"daemon_port"\s*:\s*(\d+)?')
+
+    with open("/deluge-conf/core.conf", "r") as f:
+        text = f.read()
+
+    match = pattern.search(text)
+
+    if match:
+        return match[1]
+
+    return None
+
+# -------------------------------------------------------------------------------------------------------------------- #
+
 def set_daemon_port(port):
     pattern = re.compile(r'"daemon_port"\s*:\s*(\d+)?')
     new_pattern = f'"daemon_port": {port}'
@@ -245,7 +260,7 @@ def main():
         quit(1)
     print("✅ Incoming interface has been set in Deluge 'core.conf'!\n")
 
-    if daemonPort != 58846:
+    if daemonPort != 58846 and daemonPort != get_daemon_port():
         try:
             print(f"ℹ️ Setting daemon port to {daemonPort}...")
             set_daemon_port(daemonPort)
