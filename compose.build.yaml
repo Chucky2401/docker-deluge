@@ -43,6 +43,7 @@ services:
       # - VPN_FILE=/run/secrets/VPN_FILE
       # - VPN_USER=<username>
       # - VPN_PASSWORD=<password>
+      # - DELUGE_DAEMON_PORT=10000
     volumes:
       # If you comment this line below because of using secret for VPN_FILE
       # be warn that the log file will be lost after each compose destroy
@@ -57,6 +58,7 @@ services:
       - 6881:6881/udp
       # Daemon port
       - 58846:58846
+      # - 10000:10000
     networks:
       - deluge
     dns:
