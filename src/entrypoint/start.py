@@ -250,7 +250,7 @@ def main():
             print(f"ℹ️ Setting daemon port to {daemonPort}...")
             set_daemon_port(daemonPort)
             print("✅ Port has been set\n")
-        catch Exception as e:
+        except Exception as e:
             print(f"❌ Daemon has not been set, keep default port 58846.")
             print(f"Error: {e}\n")
 
