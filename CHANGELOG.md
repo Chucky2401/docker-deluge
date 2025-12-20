@@ -5,14 +5,15 @@
 ### News
 
 - Use a shell script as entrypoint for basic configuration
-    - Prepare file for VPN credentials
-    - Checking VPN file as been declared
-    - Set Deluge daemon credentials. Generate user/password if not set
-    - Change user UID/GID if set PUID/PGID are set
-    - Update timezone
+  - Prepare file for VPN credentials
+  - Checking VPN file as been declared
+  - Set Deluge daemon credentials. Generate user/password if not set
+  - Change user UID/GID if set PUID/PGID are set
+  - Update timezone
 - Copy a default **core.conf** if not exist
 - Add OpenContainers label
 - Add `compose.build.yaml` and `run_compose_build.sh` to try out the image
+- Add Header for the Docker logs
 
 ### Changes
 
@@ -22,9 +23,13 @@
 
 - Wrong error message for interface
 - Use `getenv()` in case of non set value
+- Message said **core.conf** has been copied event not the case
 
 ### Commits
 
+- *6b4e69f* - doc(changelog): complete changelog
+- *c1bf8ad* - fix(py): message bad position
+- *3524b9c* - feat(sh): add header
 - *e5ac0b4* - doc(readme): add roadmap and faq
 - *f7399d6* - chore(compose): add test for DELUGE_DAEMON_PORT
 - *ed17ee3* - chore(sh): force timezone link file to remove error message
