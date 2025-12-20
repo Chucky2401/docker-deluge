@@ -9,6 +9,18 @@ VPN_FILE=${VPN_FILE:-/.openvpn/vpn.ovpn}
 
 DIR="/deluge-conf /downloads /.openvpn /entrypoint /template"
 
+echo "************************************"
+echo "*                                  *"
+echo "*  ____       _                    *"
+echo "* |  _ \  ___| |_   _  __ _  ___   *"
+echo "* | | | |/ _ \ | | | |/ _\` |/ _ \  *"
+echo "* | |_| |  __/ | |_| | (_| |  __/  *"
+echo "* |____/ \___|_|\__,_|\__, |\___|  *"
+echo "*                     |___/        *"
+echo "*                                  *"
+echo "************************************"
+echo ""
+
 # If no VPN credentials, either by env var or secrets, stop
 if [[ -z "$VPN_USER" || -z "$VPN_PASSWORD" ]] && [[ ! -e /run/secrets/VPN_CREDENTIALS ]]; then
   cat <<EOF
