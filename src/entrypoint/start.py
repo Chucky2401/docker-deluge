@@ -229,10 +229,12 @@ def main():
         print("⚠️ Copy default 'core.conf'...")
         try:
             shutil.copyfile("/template/core.conf", "/deluge-conf/core.conf")
+            print("✅ Default 'core.conf' has been copied!\n")
         except Exception as e:
             print(f"Cannot copy default 'core.conf': {e}")
             quit(1)
-    print("✅ Default 'core.conf' has been copied!\n")
+    else:
+        print("✅ '/deluge-conf/core.conf' is present")
 
     print("ℹ️ Starting OpenVPN...")
     openVPN = start_openvpn(os.environ['VPN_FILE'])
