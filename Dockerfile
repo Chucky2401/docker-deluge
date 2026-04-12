@@ -56,7 +56,7 @@ RUN \
 
 COPY --chmod=755 src/ /
 
-EXPOSE 8112 6881 6881/udp 58846
+EXPOSE 8112 58846
 VOLUME /deluge-conf /downloads /.wg
 
 WORKDIR /entrypoint
