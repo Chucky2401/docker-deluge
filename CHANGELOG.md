@@ -27,6 +27,10 @@
 
 ### Commits
 
+- *df87383* - feat(build): add komodo pre-built script
+- *223b5b6* - doc(changelog): change release date
+- *717258c* - doc(changelog): add latest commit
+- *6b4e69f* - doc(changelog): complete changelog
 - *6b4e69f* - doc(changelog): complete changelog
 - *c1bf8ad* - fix(py): message bad position
 - *3524b9c* - feat(sh): add header
