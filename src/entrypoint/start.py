@@ -5,6 +5,8 @@ import netifaces as ni
 import os.path
 import shutil
 
+from requests import get
+
 
 def validate_deluge_loglevel(value: str):
     valideValue = (
@@ -28,16 +30,16 @@ def get_default_gateway():
 
 # -------------------------------------------------------------------------------------------------------------------- #
 
-def check_tun0():
+def check_vpn_interface():
     interfaces = ni.interfaces()
-    if 'tun0' in interfaces:
+    if 'vpn' in interfaces:
         return True
     else:
         return False
 
 # -------------------------------------------------------------------------------------------------------------------- #
 
-def wait_for_tun0(max_attempts=5, delay=5):
+def wait_for_vpn(max_attempts=5, delay=5):
     """
     Vérifie la présence de tun0 avec plusieurs tentatives.
 
@@ -46,11 +48,11 @@ def wait_for_tun0(max_attempts=5, delay=5):
         delay: Délai en secondes entre chaque tentative (défaut: 5)
 
     Returns:
-        bool: True si tun0 est trouvé, False sinon
+        bool: True si vpn est trouvé, False sinon
     """
     for attempt in range(1, max_attempts + 1):
 
-        if check_tun0():
+        if check_vpn_interface():
             return True
 
         if attempt < max_attempts:
@@ -60,8 +62,10 @@ def wait_for_tun0(max_attempts=5, delay=5):
 
 # -------------------------------------------------------------------------------------------------------------------- #
 
-def get_tun0_ip_address():
-    ip = ni.ifaddresses('tun0')[ni.AF_INET][0]['addr']
+def get_vpn_ip_address():
+    ip = ni.ifaddresses('vpn')[ni.AF_INET][0]['addr']
+    # ip_raw = get('https://icanhazip.com').content.decode('utf8')
+    # ip = ip_raw.replace('\n', '')
 
     return ip
 
@@ -152,16 +156,10 @@ def set_static_route(localNetwork, gateway, iface="eth0"):
 
 # -------------------------------------------------------------------------------------------------------------------- #
 
-def start_openvpn(ovpnFile: str):
-    if not os.path.exists("/.openvpn/logs"):
-        os.makedirs("/.openvpn/logs")
+def start_openvpn(wgConfFile: str):
+    print(f"  -> Using {wgConfFile} file...")
 
-    if os.path.isfile("/.openvpn/logs/openvpn.log"):
-        shutil.move("/.openvpn/logs/openvpn.log", "/.openvpn/logs/openvpn.log.old")
-
-    print(f"  -> Using {ovpnFile} file...")
-
-    openvpn = subprocess.Popen(["/usr/sbin/openvpn", "--config", ovpnFile, "--auth-user-pass", "/var/lib/deluge/vpn", "--log-append", "/.openvpn/logs/openvpn.log", "--daemon"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    openvpn = subprocess.Popen(["/usr/bin/wg-quick", "up", wgConfFile], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
     return openvpn
 
@@ -237,15 +235,15 @@ def main():
         print("✅ '/deluge-conf/core.conf' is present")
 
     print("ℹ️ Starting OpenVPN...")
-    openVPN = start_openvpn(os.environ['VPN_FILE'])
+    openVPN = start_openvpn(os.environ['LOCAL_VPN_FILE'])
 
-    print("🔄 Waiting for tun0 interface...")
-    if not wait_for_tun0(max_attempts=retryMax, delay=waiting):
+    print("🔄 Waiting for vpn interface...")
+    if not wait_for_vpn(max_attempts=retryMax, delay=waiting):
         print("❌ Cannot find tun0 interface!")
         quit(1)
 
-    print("ℹ️ Get tun0 ip address...")
-    ip = get_tun0_ip_address()
+    print("ℹ️ Get vpn interface ip address...")
+    ip = get_vpn_ip_address()
 
     print(f"*************************************************")
     print(f"*                                 ")
