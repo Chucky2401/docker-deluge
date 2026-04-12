@@ -1,0 +1,9 @@
+logs/
+notes/
+
+# Volume mount
+config/
+openvpn/
+
+# Confidential
+*credentials
