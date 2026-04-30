@@ -4,8 +4,23 @@ import signal, time
 import netifaces as ni
 import os.path
 import shutil
+import argparse
 
 from requests import get
+
+
+VPN_CONFIG = {
+    "wireguard": {
+        "interface": "vpn",
+        "start_cmd": ["/usr/bin/wg-quick", "up"],
+        "params": [],
+    },
+    "openvpn": {
+        "interface": "tun0",
+        "start_cmd": ["/usr/sbin/openvpn", "--config"],
+        "params": ["--auth-user-pass", "/var/lib/deluge/vpn", "--daemon"],
+    }
+}
 
 
 def validate_deluge_loglevel(value: str):
@@ -30,44 +45,60 @@ def get_default_gateway():
 
 # -------------------------------------------------------------------------------------------------------------------- #
 
-def check_vpn_interface():
-    interfaces = ni.interfaces()
-    if 'vpn' in interfaces:
-        return True
-    else:
-        return False
+def check_vpn_interface(client: str):
+    iface = VPN_CONFIG[client]["interface"]
+    return iface in ni.interfaces()
+
+# def check_vpn_interface():
+#     interfaces = ni.interfaces()
+#     if 'vpn' in interfaces:
+#         return True
+#     else:
+#         return False
 
 # -------------------------------------------------------------------------------------------------------------------- #
 
-def wait_for_vpn(max_attempts=5, delay=5):
-    """
-    Vérifie la présence de tun0 avec plusieurs tentatives.
+# def wait_for_vpn(max_attempts=5, delay=5):
+#     """
+#     Vérifie la présence de tun0 avec plusieurs tentatives.
+# 
+#     Args:
+#         max_attempts: Nombre maximum de tentatives (défaut: 5)
+#         delay: Délai en secondes entre chaque tentative (défaut: 5)
+# 
+#     Returns:
+#         bool: True si vpn est trouvé, False sinon
+#     """
+#     for attempt in range(1, max_attempts + 1):
+# 
+#         if check_vpn_interface():
+#             return True
+# 
+#         if attempt < max_attempts:
+#             time.sleep(delay)
+# 
+#     return False
 
-    Args:
-        max_attempts: Nombre maximum de tentatives (défaut: 5)
-        delay: Délai en secondes entre chaque tentative (défaut: 5)
-
-    Returns:
-        bool: True si vpn est trouvé, False sinon
-    """
+def wait_for_vpn(client: str, max_attempts=5, delay=5):
     for attempt in range(1, max_attempts + 1):
-
-        if check_vpn_interface():
+        if check_vpn_interface(client):
             return True
-
         if attempt < max_attempts:
             time.sleep(delay)
-
     return False
 
 # -------------------------------------------------------------------------------------------------------------------- #
 
-def get_vpn_ip_address():
-    ip = ni.ifaddresses('vpn')[ni.AF_INET][0]['addr']
-    # ip_raw = get('https://icanhazip.com').content.decode('utf8')
-    # ip = ip_raw.replace('\n', '')
+def get_vpn_ip_address(client: str):
+    iface = VPN_CONFIG[client]["interface"]
+    return ni.ifaddresses(iface)[ni.AF_INET][0]['addr']
 
-    return ip
+# def get_vpn_ip_address():
+#     ip = ni.ifaddresses('vpn')[ni.AF_INET][0]['addr']
+#     # ip_raw = get('https://icanhazip.com').content.decode('utf8')
+#     # ip = ip_raw.replace('\n', '')
+# 
+#     return ip
 
 # -------------------------------------------------------------------------------------------------------------------- #
 
@@ -156,12 +187,17 @@ def set_static_route(localNetwork, gateway, iface="eth0"):
 
 # -------------------------------------------------------------------------------------------------------------------- #
 
-def start_openvpn(wgConfFile: str):
-    print(f"  -> Using {wgConfFile} file...")
+def start_client_vpn(client: str, confFile: str):  # renommée
+    print(f"  -> Using {confFile} file...")
+    cmd = VPN_CONFIG[client]["start_cmd"] + [confFile] + VPN_CONFIG[client]["params"]
+    return subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
-    openvpn = subprocess.Popen(["/usr/bin/wg-quick", "up", wgConfFile], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-
-    return openvpn
+# def start_openvpn(wgConfFile: str):
+#     print(f"  -> Using {wgConfFile} file...")
+# 
+#     openvpn = subprocess.Popen(["/usr/bin/wg-quick", "up", wgConfFile], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+# 
+#     return openvpn
 
 # -------------------------------------------------------------------------------------------------------------------- #
 
@@ -193,6 +229,9 @@ class GracefulKiller:
         self.processDelugeWeb.terminate()
         self.processDelugeWeb.communicate()
 
+        stoppingDeluge = subprocess.Popen(["/usr/bin/python3", "/usr/bin/deluge-console", "-c", "/deluge-conf", "halt",], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        stoppingDeluge.wait()
+
         self.processDeluged.terminate()
         self.processDeluged.communicate()
 
@@ -203,7 +242,19 @@ class GracefulKiller:
 
 # -------------------------------------------------------------------------------------------------------------------- #
 
-def main():
+def main(argv = None):
+    parser = argparse.ArgumentParser(
+        description=__doc__,
+        formatter_class=argparse.RawDescriptionHelpFormatter
+    )
+    parser.add_argument('-c', '--client',
+                        help="Type de client VPN à utiliser",
+                        action="store",
+                        nargs="?",
+                        default="wireguard",
+                        choices=["wireguard", "openvpn"])
+    args = parser.parse_args(argv)
+
     killer = GracefulKiller()
 
     retryMax = 5
@@ -234,20 +285,23 @@ def main():
     else:
         print("✅ '/deluge-conf/core.conf' is present")
 
-    print("ℹ️ Starting OpenVPN...")
-    openVPN = start_openvpn(os.environ['LOCAL_VPN_FILE'])
+    print(f"ℹ️ Starting {args.client}...")
+    # clientVpn = start_openvpn(os.environ['LOCAL_VPN_FILE'])
+    clientVpn = start_client_vpn(args.client, os.environ['LOCAL_VPN_FILE'])
 
     print("🔄 Waiting for vpn interface...")
-    if not wait_for_vpn(max_attempts=retryMax, delay=waiting):
-        print("❌ Cannot find tun0 interface!")
+    # if not wait_for_vpn(max_attempts=retryMax, delay=waiting):
+    if not wait_for_vpn(args.client, max_attempts=retryMax, delay=waiting):
+        print("❌ Cannot find VPN client interface!")
         quit(1)
 
     print("ℹ️ Get vpn interface ip address...")
-    ip = get_vpn_ip_address()
+    # ip = get_vpn_ip_address()
+    ip = get_vpn_ip_address(args.client)
 
     print(f"*************************************************")
     print(f"*                                 ")
-    print(f"*     Your tun0 ip address is {ip}")
+    print(f"*     Your VPN client ip address is {ip}")
     print(f"*                                 ")
     print(f"*************************************************\n")
 
@@ -270,12 +324,12 @@ def main():
             print(f"Error: {e}\n")
 
     print("ℹ️ Starting Deluge Server...")
-    deluged   = start_deluged(delugeLogLevel)
+    deluged = start_deluged(delugeLogLevel)
     print("ℹ️ Starting Deluge Web interface...")
     time.sleep(3)
     delugeWeb = start_deluge_web()
 
-    killer.processOpenVPN   = openVPN
+    killer.processOpenVPN   = clientVpn
     killer.processDeluged   = deluged
     killer.processDelugeWeb = delugeWeb
 

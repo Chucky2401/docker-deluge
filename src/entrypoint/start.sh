@@ -5,15 +5,23 @@ CURRENTUID=$(id -u deluge)
 CURRENTGID=$(id -g deluge)
 USERID=$CURRENTUID
 GROUPID=$CURRENTGID
-LOCAL_VPN_FILE="/.wg/vpn.conf"
 
-DIR="/deluge-conf /downloads /.wg /entrypoint /template"
+VPN_FILE=${VPN_FILE:-/run/secrets/VPN_FILE}
+LOCAL_VPN_FILE="/.wg/vpn.conf"
+VPN_CREDENTIALS=${VPN_CREDENTIALS:-/run/secrets/VPN_CREDENTIALS}
+
+REGEX_VPN_CLIENT="^openvpn|^wireguard"
+
+DIR="/deluge-conf /downloads /.openvpn /.wg /entrypoint /template"
+
+. /entrypoint/openvpn.sh
+. /entrypoint/wireguard.sh
 
 echo "************************************"
 echo "*                                  *"
 echo "*  ____       _                    *"
 echo "* |  _ \  ___| |_   _  __ _  ___   *"
-echo "* | | | |/ _ \ | | | |/ _\` |/ _ \  *"
+echo "* | | | |/ _ \ | | | |/ _\ |/ _ \  *"
 echo "* | |_| |  __/ | |_| | (_| |  __/  *"
 echo "* |____/ \___|_|\__,_|\__, |\___|  *"
 echo "*                     |___/        *"
@@ -21,52 +29,50 @@ echo "*                                  *"
 echo "************************************"
 echo ""
 
-# If no VPN credentials, either by env var or secrets, stop
-if [[ -z "$PRIVATE_KEY" || -z "$PRESHARED_KEY" || -z "$ADDRESS" ]] && [[ ! -e /run/secrets/VPN_CREDENTIALS ]]; then
+if [[ ! "$VPN_CLIENT" =~ $REGEX_VPN_CLIENT ]]; then
   cat <<EOF
-==> Please provide a valid VPN username and password
-You can use environment variables:
-  - PRIVATE_KEY
-  - PRESHARED_KEY
-  - ADDRESS
-
-Or a secret name 'VPN_CREDENTIALS', the file must have the following format:
-PRIVATE_KEY
-PRESHARED_KEY
-ADDRESS
+==> Please provide a valid VPN client in:
+- openvpn
+- wireguard
 EOF
 
   exit 1
-fi
-
-# Define VPN credentials
-LOCAL_PRIVATE_KEY=${PRIVATE_KEY}
-LOCAL_PRESHARED_KEY=${PRESHARED_KEY}
-LOCAL_ADDRESS=${ADDRESS}
-
-if [[ -e "$VPN_CREDENTIALS" ]]; then
-  { IFS= read -r LOCAL_PRIVATE_KEY && IFS= read -r LOCAL_PRESHARED_KEY && IFS= read -r LOCAL_ADDRESS; } <"$VPN_CREDENTIALS"
 fi
 
 # If VPN .conf file does not exist stop
 if [[ ! -e "$VPN_FILE" ]]; then
   cat <<EOF
-You must provide a valid .conf file or be sure the file exist here:
-  ${VPN_FILE}
+==> You must provide a valid .conf or .ovpn file by creating a secret named VPN_FILE:
+  VPN_FILE:
+    file: ./.secrets/file.conf
 EOF
   exit 1
 fi
 
-# Copy secrets file to internal file only if necessary
-if [[ "$VPN_FILE" != "$LOCAL_VPN_FILE" ]]; then
-  cp $VPN_FILE $LOCAL_VPN_FILE
+echo "==> Setting $VPN_CLIENT..."
+
+case "$VPN_CLIENT" in
+"wireguard")
+  set_wireguard "$LOCAL_VPN_FILE"
+  SET_STATUS=$?
+  ;;
+"openvpn")
+  LOCAL_VPN_FILE="/.openvpn/vpn.ovpn"
+  set_openvpn "$LOCAL_VPN_FILE"
+  SET_STATUS=$?
+  ;;
+esac
+
+if [[ $SET_STATUS -ne 0 ]]; then
+  cat <<EOF
+Cannot set VPN client
+EOF
+
+  exit 1
 fi
 
-# Define VPN conf file with data
-sed -i -e "s/\(PrivateKey = \).*/\1${LOCAL_PRIVATE_KEY}/g" $LOCAL_VPN_FILE
-sed -i -e "s/\(PresharedKey = \).*/\1${LOCAL_PRESHARED_KEY}/g" $LOCAL_VPN_FILE
-sed -i -e "s/\(Address = \).*/\1${LOCAL_ADDRESS}/g" $LOCAL_VPN_FILE
-sed -i -e "s/\(DNS = \).*/\1/g" $LOCAL_VPN_FILE
+echo ""
+echo "==> Setting Deluge..."
 
 # Deluge web ui credentials
 RANDOM_PASSWORD=$(
@@ -100,6 +106,9 @@ if ! grep -q "$DELUGE_CREDENTIALS" /deluge-conf/auth; then
   echo "$DELUGE_CREDENTIALS" >/deluge-conf/auth
 fi
 
+echo ""
+echo "==> Setting directories permissions..."
+
 # Define UID and GID to deluge
 if [[ -n "$PUID" ]]; then
   USERID=${PUID}
@@ -123,14 +132,6 @@ if [[ -n "$TZ" ]]; then
   ln -fs /usr/share/zoneinfo/${TZ} /etc/localtime
 fi
 
-# Clear var
-unset PRIVATE_KEY
-unset PRESHARED_KEY
-unset ADDRESS
-unset LOCAL_PRIVATE_KEY
-unset LOCAL_PRESHARED_KEY
-unset LOCAL_ADDRESS
-
 # Export necessary variable
 export LOCAL_VPN_FILE
 
@@ -139,4 +140,4 @@ echo ""
 
 # Prepare and run Deluge
 # tail -f /dev/null
-exec python3 ./start.py
+exec python3 ./start.py -c "$VPN_CLIENT"

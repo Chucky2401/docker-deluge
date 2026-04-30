@@ -35,7 +35,7 @@ RUN \
       py3-netifaces \
       py3-requests ; \
     echo "*** Install OpenVPN ***" ; \
-    apk add --no-cache wireguard-tools \
+    apk add --no-cache openvpn wireguard-tools \
       geoip ; \
     echo "*** Install Deluged ***" ; \
     apk add --no-cache deluge ; \
@@ -49,10 +49,11 @@ RUN \
     echo "*** Create directories ***" ; \
     mkdir /deluge-conf ; \
     mkdir /downloads ; \
+    mkdir /.openvpn ; \
     mkdir /.wg ; \
     mkdir /entrypoint ; \
     mkdir /template ; \
-    chown -R deluge:deluge /deluge-conf /downloads /.wg /entrypoint /template
+    chown -R deluge:deluge /deluge-conf /downloads /.openvpn /.wg /entrypoint /template
 
 COPY --chmod=755 src/ /
 
