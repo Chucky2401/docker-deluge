@@ -13,19 +13,23 @@ services:
           $DIGEST
         REVISION: |-
           $REVISION
-        VERSION: "1.0.0"
+        VERSION: "2.0.0"
     pull_policy: build
     cap_add:
       - NET_ADMIN
       - SYS_MODULE
     # This is mandatory for wireguard
-    sysctls:
-      - net.ipv4.conf.all.src_valid_mark=1
+    # sysctls:
+    #   - net.ipv4.conf.all.src_valid_mark=1
+    # This is mandatory for openvpn
+    devices:
+      - /dev/net/tun
     environment:
       - PUID=1000
       - PGID=1000
       - TZ=Europe/Paris
       - LOCAL_NETWORK=192.168.1.0/24
+      - VPN_CLIENT=openvpn
       - DELUGE_LOGLEVEL=warning
       - DELUGE_DAEMON_USERNAME=user
       # Set the password directly with env var
@@ -51,7 +55,7 @@ services:
       # If you comment this line below because of using secret for VPN_FILE
       # be warn that the log file will be lost after each compose destroy
       - ./config/:/deluge-conf
-      # - /mnt/crucial:/downloads
+      - ./downloads:/downloads
     ports:
       # Web UI
       - 8112:8112
@@ -91,10 +95,12 @@ secrets:
   # preshared key on second line and
   # address on third line
   VPN_CREDENTIALS:
-    file: ./.secrets/vpn_credentials
+    # file: ./.secrets/wg_cred
+    file: ./.secrets/ovpn_cred
   # VPN_FILE as secret
   VPN_FILE:
-    file: ./.secrets/SeStockholm.conf
+    # file: ./.secrets/SeStockholm.conf
+    file: ./.secrets/Sweden.ovpn
   # DELUGE_DAEMON_PASSWORD as secret
   # DELUGE_DAEMON_PASSWORD:
   #   file: deluge_daemon_password
