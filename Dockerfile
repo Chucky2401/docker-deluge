@@ -1,4 +1,4 @@
-FROM alpine:latest
+FROM forgejo.intranet.blackwizard.fr/docker/alpine:latest
 
 ARG CREATED
 ARG DIGEST
