@@ -8,3 +8,4 @@ openvpn/
 # Confidential
 *credentials
 .secrets
+downloads
